@@ -11,6 +11,10 @@ void setup() {
   // Serial.begin(9600); // commented out to load onto the arduino uno; the uno doesn't have enough pins to use Serial and display seconds
   rtc.begin();
 
+  // assorted rest of the pins, second
+  for (int pin : secondPins) {
+    pinMode(pin, OUTPUT);
+  }
 
   // pins 2-7, minute
   // pin 2 corresponds to the "1" bit of the output; pin 7 corresponds to the "32" bit of the output
@@ -21,10 +25,6 @@ void setup() {
   // pins 9-13, hour
   // pin 9 corresponds to the "1" bit of the output; pin 13 corresponds to the "16" bit of the output
   for (int pin : hourPins) {
-    pinMode(pin, OUTPUT);
-  }
-
-  for (int pin : secondPins) {
     pinMode(pin, OUTPUT);
   }
 
