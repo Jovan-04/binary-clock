@@ -2,12 +2,13 @@
 #include <RTClib.h>
 
 RTC_DS3231 rtc; // create rtc for the DS3231 RTC module
-const int minutePins[6] = { 2, 3, 4, 5, 6, 7 };
 const int hourPins[5] = { 9, 10, 11, 12, 13 };
+const int minutePins[6] = { 2, 3, 4, 5, 6, 7 };
+const int secondPins[6] = { 0, 1, 8, 17, 16, 15 };
 
 void setup() {
   // setup code here, to run once:
-  Serial.begin(9600);
+  // Serial.begin(9600); // commented out to load onto the arduino uno; the uno doesn't have enough pins to use Serial and display seconds
   rtc.begin();
 
 
@@ -20,6 +21,10 @@ void setup() {
   // pins 9-13, hour
   // pin 9 corresponds to the "1" bit of the output; pin 13 corresponds to the "16" bit of the output
   for (int pin : hourPins) {
+    pinMode(pin, OUTPUT);
+  }
+
+  for (int pin : secondPins) {
     pinMode(pin, OUTPUT);
   }
 
@@ -73,7 +78,7 @@ void updateRTC() { // modified from https://www.circuitbasics.com/how-to-use-a-r
     Serial.read();  // clear serial buffer
   }
 
-  for (int i = 3; i <= 4; i++) {
+  for (int i = 3; i <= 5; i++) {
     // only ask for hour and minute
     Serial.print("Enter ");
     Serial.print(txt[i]);
@@ -98,10 +103,13 @@ void updateOutputLEDs() {
   DateTime now = rtc.now(); // read rtc current time
   int hour = now.hour(); // get current hour
   int minute = now.minute(); // and current minute
+  int second = now.second(); // and current second
 
   Serial.print(hour);
   Serial.print(":");
-  Serial.println(minute);
+  Serial.print(minute);
+  Serial.print(":");
+  Serial.println(second);
 
   Serial.print("hours: ");
   for (int i = 4; i >= 0; i--) { // loop over indices from 4 to 0 (most significant to least significant bits)
@@ -115,6 +123,14 @@ void updateOutputLEDs() {
   for (int i = 5; i >= 0; i--) {
     int pin = minutePins[i];
     int state = (( 1 << i ) & ( minute )) >> i; // returns boolean whether the lamp should be lit or not
+    Serial.print(state);
+    digitalWrite(pin, state);
+  }
+
+  Serial.print(" seconds: ");
+  for (int i = 5; i >= 0; i--) {
+    int pin = secondPins[i];
+    int state = (( 1 << i ) & ( second )) >> i; // returns boolean whether the lamp should be lit or not
     Serial.print(state);
     digitalWrite(pin, state);
   }
