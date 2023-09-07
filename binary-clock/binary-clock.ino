@@ -4,7 +4,8 @@
 RTC_DS3231 rtc; // create rtc for the DS3231 RTC module
 const int hourPins[5] = { 9, 10, 11, 12, 13 };
 const int minutePins[6] = { 2, 3, 4, 5, 6, 7 };
-const int secondPins[6] = { 0, 1, 8, 17, 16, 15 };
+const int secondPins[6] = { 0, 1, 14, 17, 16, 15 };
+const int switchPin = 8;
 
 void setup() {
   // setup code here, to run once:
@@ -27,6 +28,8 @@ void setup() {
   for (int pin : hourPins) {
     pinMode(pin, OUTPUT);
   }
+
+  pinMode(switchPin, INPUT);
 
   Serial.println("Pins assigned");
 }
@@ -127,15 +130,19 @@ void updateOutputLEDs() {
     digitalWrite(pin, state);
   }
 
+
+  int secondSwitchState = digitalRead(switchPin);
   Serial.print(" seconds: ");
   for (int i = 5; i >= 0; i--) {
     int pin = secondPins[i];
     int state = (( 1 << i ) & ( second )) >> i; // returns boolean whether the lamp should be lit or not
     Serial.print(state);
-    digitalWrite(pin, state);
+    digitalWrite(pin, (state & secondSwitchState));
   }
 
   Serial.println(" ");
+  Serial.print("second switch: ");
+  Serial.println(secondSwitchState);
   Serial.println(" ");
   
   delay(1000);
