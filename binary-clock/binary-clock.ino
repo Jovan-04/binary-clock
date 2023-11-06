@@ -2,34 +2,28 @@
 #include <RTClib.h>
 
 RTC_DS3231 rtc; // create rtc for the DS3231 RTC module
-const int hourPins[5] = { 9, 10, 11, 12, 13 };
-const int minutePins[6] = { 2, 3, 4, 5, 6, 7 };
-const int secondPins[6] = { 0, 1, 14, 17, 16, 15 };
-const int switchPin = 8;
+
+// define pins, with LED values in ascending order (1 pin first, 32 pin last)
+const int hourPins[5] = { 13, 18, 19, 20, 21 };
+const int minutePins[6] = { 12, 11, 10, 9, 8, 7 };
+const int secondPins[6] = { 6, 5, 22, 23, 14, 15 };
 
 void setup() {
   // setup code here, to run once:
-  // Serial.begin(9600); // commented out to load onto the arduino uno; the uno doesn't have enough pins to use Serial and display seconds
+  Serial.begin(9600);
   rtc.begin();
 
-  // assorted rest of the pins, second
-  for (int pin : secondPins) {
-    pinMode(pin, OUTPUT);
-  }
-
-  // pins 2-7, minute
-  // pin 2 corresponds to the "1" bit of the output; pin 7 corresponds to the "32" bit of the output
-  for (int pin : minutePins) {
-    pinMode(pin, OUTPUT);
-  }
-
-  // pins 9-13, hour
-  // pin 9 corresponds to the "1" bit of the output; pin 13 corresponds to the "16" bit of the output
   for (int pin : hourPins) {
     pinMode(pin, OUTPUT);
   }
 
-  pinMode(switchPin, INPUT);
+  for (int pin : minutePins) {
+    pinMode(pin, OUTPUT);
+  }
+
+  for (int pin : secondPins) {
+    pinMode(pin, OUTPUT);
+  }
 
   Serial.println("Pins assigned");
 }
@@ -131,18 +125,14 @@ void updateOutputLEDs() {
   }
 
 
-  int secondSwitchState = digitalRead(switchPin);
   Serial.print(" seconds: ");
   for (int i = 5; i >= 0; i--) {
     int pin = secondPins[i];
     int state = (( 1 << i ) & ( second )) >> i; // returns boolean whether the lamp should be lit or not
     Serial.print(state);
-    digitalWrite(pin, (state & secondSwitchState));
+    digitalWrite(pin, state);
   }
 
-  Serial.println(" ");
-  Serial.print("second switch: ");
-  Serial.println(secondSwitchState);
   Serial.println(" ");
   
   delay(1000);
